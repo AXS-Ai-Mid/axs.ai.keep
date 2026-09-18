@@ -2,12 +2,22 @@
  * API do CRM Notes.
  * Persistência em server/data/db.json + sincronização via SSE em /api/events.
  */
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import * as store from './store.js'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const DIST_DIR = process.env.DIST_DIR ? path.resolve(process.env.DIST_DIR) : path.resolve(__dirname, '..', 'dist')
+const WEB_PORT = Number(process.env.WEB_PORT || process.env.HMR_CLIENT_PORT || 5173)
+
 const PORT = Number(process.env.API_PORT || 3001)
 const app = express()
+
+/** SPA compilada existe? (mantida atualizada pelo processo `dev:build`) */
+const hasBuild = () => fs.existsSync(path.join(DIST_DIR, 'index.html'))
 
 app.use(cors())
 app.use(express.json({ limit: '15mb' }))
@@ -228,10 +238,60 @@ app.get('/api/events', (req, res) => {
   })
 })
 
+/**
+ * Serve o app compilado (dist/) na mesma porta da API. Assim a interface fica
+ * acessível tanto em :5173 (Vite, com hot reload) quanto em :3001 (build),
+ * evitando o "Cannot GET /" quando o preview abre a porta da API.
+ */
+app.use(express.static(DIST_DIR, { index: false, maxAge: '1h' }))
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+  if (req.path.startsWith('/api')) return res.status(404).json({ error: `rota não encontrada: ${req.method} ${req.path}` })
+  if (hasBuild()) return res.sendFile(path.join(DIST_DIR, 'index.html'))
+  return res.status(200).type('html').send(helpPage(req))
+})
+
 app.use((err, _req, res, _next) => {
   console.error('[api] erro:', err.message)
   res.status(500).json({ error: err.message })
 })
+
+/** Página de apoio exibida somente quando ainda não existe build (dist/). */
+function helpPage(req) {
+  const host = String(req.headers.host || `localhost:${PORT}`)
+  // Em previews remotos o host começa com a porta (ex.: 3001-abc.e2b.app).
+  const swapped = host.replace(/^(\d+)-/, `${WEB_PORT}-`)
+  const target = swapped !== host ? `https://${swapped}` : `http://${host.replace(/:\d+$/, '')}:${WEB_PORT}`
+  return `<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8" /><title>CRM Notes — API ativa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="refresh" content="2;url=${target}" />
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b1120;color:#e2e8f0;
+       font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+  .card{max-width:520px;padding:32px;border-radius:24px;background:#111c33;border:1px solid #1e293b;text-align:center}
+  h1{margin:0 0 8px;font-size:20px}
+  p{margin:6px 0;color:#94a3b8;font-size:14px;line-height:1.5}
+  a.btn{display:inline-block;margin-top:18px;padding:12px 20px;border-radius:14px;background:#4f46e5;color:#fff;
+        font-weight:600;text-decoration:none}
+  code{background:#1e293b;padding:2px 6px;border-radius:6px;color:#c7d2fe}
+  .links{margin-top:14px;font-size:13px}
+</style></head>
+<body><div class="card">
+  <h1>CRM Notes — API ativa nesta porta</h1>
+  <p>A interface do sistema é servida pelo Vite na porta <code>${WEB_PORT}</code>.</p>
+  <p>Redirecionando automaticamente…</p>
+  <a class="btn" href="${target}">Abrir CRM Notes</a>
+  <div class="links">
+    <p>Ou rode <code>npm run preview</code> para servir a interface e a API na mesma porta.</p>
+    <p><a href="/api/health" style="color:#a5b4fc">/api/health</a> ·
+       <a href="/api/state" style="color:#a5b4fc">/api/state</a></p>
+  </div>
+</div>
+<script>setTimeout(function(){location.replace(${JSON.stringify(target)})},1200)</script>
+</body></html>`
+}
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`[api] CRM Notes API em http://0.0.0.0:${PORT}`)

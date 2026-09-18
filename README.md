@@ -18,11 +18,16 @@ npm run dev
 
 | Serviço | Endereço | Descrição |
 | --- | --- | --- |
-| App (Vite + React) | http://localhost:5173 | Interface completa (proxy `/api` → backend) |
-| API (Express) | http://localhost:3001 | REST + SSE para sincronização em tempo real |
+| **App (Vite + React)** | **http://localhost:5173** | Interface completa com hot reload (proxy `/api` → backend) |
+| API + interface compilada | http://localhost:3001 | REST + SSE **e também serve o app** (build mantido atualizado em tempo real) |
 | Dados | `server/data/db.json` | Criado automaticamente na primeira execução |
 
-Build de produção: `npm run build` (gera `dist/`), conferência de tipos: `npx tsc -p tsconfig.json --noEmit`.
+> ℹ️ **As duas portas abrem o sistema.** A porta 3001 (API) passou a servir a interface compilada,
+> então não aparece mais o erro `Cannot GET /` se o preview abrir a porta da API.
+> Em `npm run preview` a interface e a API ficam na **mesma porta** (3001).
+
+Outros comandos: `npm run build` (build de produção em `dist/`), `npm run build:web` (build sem typecheck),
+`npm run preview` (build + serve tudo na 3001), `npm run typecheck`.
 
 ---
 
@@ -138,6 +143,11 @@ Settings    { theme, soundEnabled, sound, volume, notificationsEnabled, mondayFi
 - `Ctrl+K` (ou `⌘K`) — foca a busca global
 - `Esc` — fecha o editor, popups e modais
 
+### Se aparecer "Cannot GET ..."
+1. Confirme que está usando a porta **5173** (Vite) ou a **3001** — nas duas o app carrega normalmente.
+2. Se a mensagem for em outra porta, rode `npm run dev` (sobe API + Vite + build automático) ou `npm run preview`.
+3. `GET /api/rota-inexistente` continua respondendo JSON de erro — isso é esperado na API.
+
 ---
 
 ## 🧱 Decisões técnicas
@@ -146,6 +156,8 @@ Settings    { theme, soundEnabled, sound, volume, notificationsEnabled, mondayFi
 - **Tailwind v4** (`@tailwindcss/vite`) com `@theme` para a paleta da marca e variante `dark` por classe.
 - **Persistência em arquivo JSON** com escrita atômica e *debounce*: zero dependências nativas, fácil de inspecionar e mover para banco depois.
 - **SSE** em vez de polling para refletir alterações entre abas; o cliente também reconcilia o estado após cada operação.
+- **Fallback de duas portas**: o servidor Express serve `dist/` (SPA) quando existe build e, se não existir,
+  mostra uma página que redireciona para a porta do Vite — assim nenhuma porta do preview devolve "Cannot GET".
 - **Alarme com estado “acknowledged”**: som e notificação tocam apenas quando o horário vence (sem repetir a cada checagem), e alarmes recorrentes são reprogramados ao concluir.
 - **Som gerado via WebAudio** (sem arquivos de áudio) e desbloqueado no primeiro clique, respeitando a política de autoplay.
 

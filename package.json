@@ -5,13 +5,15 @@
   "type": "module",
   "description": "CRM Notes — Google Keep profissional com pipeline de vendas, categorias, 20 cores e alarmes programáveis.",
   "scripts": {
-    "dev": "concurrently -k -n API,WEB -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev": "concurrently -k -n API,WEB,BUILD -c magenta,cyan,gray \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:build\"",
+    "start": "npm run dev",
     "dev:api": "node server/index.js",
     "dev:web": "vite --host 0.0.0.0 --port 5173",
+    "dev:build": "vite build --watch --logLevel warn",
     "build": "tsc -b && vite build",
-    "preview": "node server/index.js",
-    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false || tsc -p tsconfig.app.json --noEmit",
-    "start": "concurrently -k -n API,WEB -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\""
+    "build:web": "vite build",
+    "preview": "npm run build && API_HOST=0.0.0.0 node server/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "cors": "^2.8.5",
