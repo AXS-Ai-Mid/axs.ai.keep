@@ -1,11 +1,24 @@
 # CRM Notes — Notas profissionais + Pipeline de Vendas
 
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff?logo=vite&logoColor=white)](https://vite.dev)
+[![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)](https://expressjs.com)
+[![Idioma](https://img.shields.io/badge/idioma-portugu%C3%AAs%20(pt--BR)-009c3b)](#)
+
 Um **“Google Keep profissional”** com foco em CRM para empresas de tecnologia: notas coloridas e categorizáveis,
 **pipeline de vendas em Kanban com as 6 etapas de atendimento**, dados de cliente/negócio em cada nota,
 **alarmes programáveis com popup e som** e telas de acompanhamento (Agenda & Análises).
 
-O sistema já sobe **com dados de exemplo reais de uma empresa de tecnologia** — 29 notas, 8 categorias,
-11 alarmes e 15 negócios distribuídos no funil — para você testar tudo imediatamente.
+O sistema sobe **já com dados de exemplo reais de uma empresa de tecnologia** — 29 notas, 8 categorias,
+11 alarmes e 17 negócios distribuídos no funil — para você testar tudo imediatamente.
+
+> **TL;DR** — `npm install && npm run dev` → abra **http://localhost:5173**.
+> Sem banco para configurar, sem variáveis de ambiente, sem chaves de API.
+
+**Índice:** [Como rodar](#-como-rodar) · [Recursos](#-o-que-já-está-implementado) · [Estrutura](#-estrutura-do-projeto) ·
+[API](#-api) · [Roteiro de teste](#-roteiro-de-teste-rápido-com-os-dados-de-exemplo) · [Decisões técnicas](#-decisões-técnicas)
 
 ---
 
