@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vite
+server/data/*.json
+!server/data/.gitkeep
+.env
+.env.*
+*.log
+tsconfig.tsbuildinfo
+*.tsbuildinfo

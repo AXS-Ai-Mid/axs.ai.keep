@@ -1,0 +1,38 @@
+{
+  "name": "crm-notes",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CRM Notes — Google Keep profissional com pipeline de vendas, categorias, 20 cores e alarmes programáveis.",
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB,BUILD -c magenta,cyan,gray \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:build\"",
+    "start": "npm run dev",
+    "dev:api": "node server/index.js",
+    "dev:web": "vite --host 0.0.0.0 --port 5173",
+    "dev:build": "vite build --watch --logLevel warn",
+    "build": "tsc -b && vite build",
+    "build:web": "vite build",
+    "preview": "npm run build && API_HOST=0.0.0.0 node server/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "lucide-react": "^0.545.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "concurrently": "^9.2.1",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}
